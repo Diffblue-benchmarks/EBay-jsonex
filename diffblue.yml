@@ -1,0 +1,434 @@
+buildCmd: mvn -e -X -Dmaven.test.skip=true compile
+testCmd: true
+lineLength: 4096
+skipVerification: true
+cbmcArguments:
+  # Do not generate coverage comments on generated tests.
+  java-generate-no-comments: true
+phases:
+  -
+  #Phase 0 PRETTY AND SIMPLE - Simple models, quick cover, pretty Tests, Do Not Test Private Method Directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [ private ]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # Instrument the file as opposed to the function only
+      cover-only: file
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+  -
+  #Phase 1 PRETTY AND COMPLEX - Standard models, longer run time, pretty tests, Do Not Test Private Method Directly
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: false
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 2
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [ private ]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+  #Phase 2 Simple and Private Directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+      # If the logs contain output of the following then proceed to phase X
+    nextPhase:
+      # If the function is not analysable then do not pass onto the next phase
+      not_analyzed: null
+  -
+  #Phase 3 Complex and Private Directly
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library.
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 3000
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+  -
+  #Phase 4 EXCEPTIONS
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library.
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+  -
+    #PHASE 5 Big numbers and less contraints on inputs 
+    timeout: 300
+    cbmcArguments:
+      # Use the standard models library.
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: false
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 100
+      # Bound the length of input strings.
+      max-nondet-string-length: 100
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 6
+units:
+# Target TGF: 4099.5
+#  >methods=24
+#  >complexity=602
+#  >construction=198.0
+#  >dependency=18.0
+ - target:
+   - dir: core/target/classes
+     file: com/jsonex/core/util/ListUtil.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/ListUtil.java
+   - dir: core/target/classes
+     file: com/jsonex/core/util/ListUtil$1.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/ListUtil.java
+# Target TGF: 463.5
+#  >methods=30
+#  >complexity=471
+#  >construction=19.25
+#  >dependency=20.0
+ - target:
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/CharSource.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/CharSource.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/Bookmark.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/Bookmark.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/CharSource$3.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/CharSource.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/CharSource$2.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/CharSource.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/CharSource$1.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/CharSource.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/EOFRuntimeException.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/EOFRuntimeException.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/ParseRuntimeException.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/ParseRuntimeException.java
+# Target TGF: 1116.38571429
+#  >methods=10
+#  >complexity=760
+#  >construction=28.2214285714
+#  >dependency=8.0
+ - target:
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/BeanCoder.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/BeanCoder.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/ICoder.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/ICoder.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/JSONCoderOption.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/JSONCoderOption.java
+   - dir: core/target/classes
+     file: com/jsonex/core/util/ClassUtil.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/ClassUtil.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/TDNode.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/TDNode.java
+   - dir: core/target/classes
+     file: com/jsonex/core/util/StringUtil.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/StringUtil.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/coder/CoderMap.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/coder/CoderMap.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/coder/CoderCollection.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/coder/CoderCollection.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/BeanCoderException.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/BeanCoderException.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/BeanCoderContext.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/BeanCoderContext.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/TDJSONWriter.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/TDJSONWriter.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/coder/CoderArray.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/coder/CoderArray.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/coder/CoderObject.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/coder/CoderObject.java
+# Target TGF: 6311.25
+#  >methods=25
+#  >complexity=1167
+#  >construction=182.25
+#  >dependency=17.5833333333
+ - target:
+   - dir: core/target/classes
+     file: com/jsonex/core/util/ClassUtil.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/ClassUtil.java
+   - dir: core/target/classes
+     file: com/jsonex/core/util/StringUtil.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/StringUtil.java
+   - dir: core/target/classes
+     file: com/jsonex/core/util/BeanProperty.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/BeanProperty.java
+# Target TGF: 1359.0
+#  >methods=11
+#  >complexity=196
+#  >construction=72.0
+#  >dependency=6.5
+ - target:
+   - dir: core/target/classes
+     file: com/jsonex/core/util/EnumUtil.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/EnumUtil.java
+   - dir: core/target/classes
+     file: com/jsonex/core/type/Identifiable.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/type/Identifiable.java
+# Target TGF: 323.0
+#  >methods=16
+#  >complexity=349
+#  >construction=11.0
+#  >dependency=10.0
+ - target:
+   - dir: core/target/classes
+     file: com/jsonex/core/util/BeanProperty.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/BeanProperty.java
+   - dir: core/target/classes
+     file: com/jsonex/core/util/InvokeRuntimeException.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/InvokeRuntimeException.java
+# Target TGF: 297.357142857
+#  >methods=50
+#  >complexity=490
+#  >construction=9.53571428571
+#  >dependency=24.0
+ - target:
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/JSONCoderOption.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/JSONCoderOption.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/coder/CoderClass.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/coder/CoderClass.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/ICoder.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/ICoder.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/coder/CoderDate.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/coder/CoderDate.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/TDJSONWriter$JSONOption.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/TDJSONWriter.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/coder/CoderBigInteger.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/coder/CoderBigInteger.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/coder/CoderXMLGregorianCalendar.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/coder/CoderXMLGregorianCalendar.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/EqualsWrapper.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/EqualsWrapper.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/coder/CoderAtomicInteger.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/coder/CoderAtomicInteger.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/coder/CoderEnum.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/coder/CoderEnum.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/IFilter.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/IFilter.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/SimpleFilter.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/SimpleFilter.java
+# Target TGF: 394.142857143
+#  >methods=19
+#  >complexity=305
+#  >construction=18.6071428571
+#  >dependency=15.0
+ - target:
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/JSONCoder.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/JSONCoder.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/BeanCoderException.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/BeanCoderException.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/JSONCoderOption.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/JSONCoderOption.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/TDJSONParser.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/TDJSONParser.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/BeanCoderContext.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/BeanCoderContext.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/TDNode.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/TDNode.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/DecodeReq.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/DecodeReq.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/TDJSONWriter.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/TDJSONWriter.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/BeanCoder.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/BeanCoder.java
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/jsoncoder/EncodeReq.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/jsoncoder/EncodeReq.java
+# Target TGF: 378.892857143
+#  >methods=26
+#  >complexity=514
+#  >construction=8.39285714286
+#  >dependency=16.0
+ - target:
+   - dir: JSONCoder/target/classes
+     file: com/jsonex/treedoc/TDNode.class
+     sourceDir: JSONCoder/src/main/java
+     sourceFile: com/jsonex/treedoc/TDNode.java
+   - dir: core/target/classes
+     file: com/jsonex/core/util/StringUtil.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/StringUtil.java
+# Target TGF: 5058.0
+#  >methods=17
+#  >complexity=562
+#  >construction=144.0
+#  >dependency=16.0
+ - target:
+   - dir: core/target/classes
+     file: com/jsonex/core/util/StringUtil.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/StringUtil.java
