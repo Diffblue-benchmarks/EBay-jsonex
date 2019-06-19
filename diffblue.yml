@@ -155,3 +155,17 @@ phases:
       throw-runtime-exceptions: false
       # Set an upper bound on loop unwinding.
       unwind: 6
+units:
+ - target:
+   - dir: core/target/classes
+     file: com/jsonex/core/util/BeanProxy.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/BeanProxy.java
+   - dir: core/target/classes
+     file: com/jsonex/core/util/BeanProxy$Node.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/BeanProxy.java
+   - dir: core/target/classes
+     file: com/jsonex/core/util/BeanProxy$BeanInvocationHandler.class
+     sourceDir: core/src/main/java
+     sourceFile: com/jsonex/core/util/BeanProxy.java
